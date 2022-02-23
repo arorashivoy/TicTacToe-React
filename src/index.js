@@ -27,23 +27,18 @@ class Board extends React.Component {
   }
 
   render() {
+    let boardRows = [];
+    for (let row = 0; row < 3; row++) {
+      let boardCols = [];
+      for (let col = 0; col < 3; col++){
+        boardCols.push(<span key={(row*3)+col}>{this.renderSquare((row*3)+col)}</span>);
+      };
+      boardRows.push(<div key={row}>{boardCols}</div>);
+    }
+
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        {boardRows}
       </div>
     );
   }
@@ -87,40 +82,73 @@ class Game extends React.Component {
     });
   }
 
+  checkNoNull(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (!arr[i]) {
+        return false
+      }
+    }
+    return true
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step,  move) => {
+      let col, row;
+      if (move !== 0){
+        for (let i = 0; i < 9; i++) {
+          if (this.state.history[move-1].squares[i] !== step.squares[i]) {
+            col = Math.floor(i/3) 
+            row = i - (3*col)
+          }
+        };
+      };
+
       const desc = move ?
-        'Go to move #' + move:
+        'Go to move #' + move + ' (' + (col+1) + ', ' + (row+1) + ")":
         'Go to game start';
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
+      
+        if (move === this.state.stepNumber) {
+          return (
+            <li key={move}>
+                <button onClick={() => this.jumpTo(move)}><b>{desc}</b></button>
+            </li>
+          )
+        } else {
+          return (
+            <li key={move}>
+                <button onClick={() => this.jumpTo(move)}>{desc}</button>
+            </li>
+          )
+        };
     });
 
+    const noNull = this.checkNoNull(current.squares)
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
-    }else {
+    }
+    else if (noNull) {
+      status = 'It is a DRAW'
+    }
+    else {
       status = 'Next Player: ' + (this.state.xIsNext ? 'X':'O');
     }
 
     return (
       <div className="game">
+        <div className="status">{status}</div>
         <div className="game-board">
           <Board 
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
           />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
+          <div className="game-info">
+            <ol>{moves}</ol>
+          </div>
         </div>
       </div>
     );
