@@ -15,9 +15,31 @@ class Square extends React.Component {
   }
 }
 
+class WonSquare extends React.Component {
+  render() {
+    return (
+      <button 
+        className="won-square" 
+        onClick={() => this.props.onClick()}
+      >
+        {this.props.value}
+      </button>
+    );
+  }
+}
+
   
 class Board extends React.Component {
   renderSquare(i) {
+    return (
+      <Square 
+        value={this.props.squares[i]}
+        onClick={() => this.props.onClick(i)}
+      />
+    );
+  }
+
+  renderWonSquare(i) {
     return (
       <Square 
         value={this.props.squares[i]}
@@ -52,7 +74,8 @@ class Game extends React.Component {
         squares: Array(9).fill(null),
       }],
       stepNumber: 0,
-      xIsNext: true
+      xIsNext: true,
+      wonSquares: Array(3).fill(null)
     };
   }
 
@@ -61,7 +84,7 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
 
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares)[0] || squares[i]) {
       return ;
     }
 
@@ -128,8 +151,11 @@ class Game extends React.Component {
 
     const noNull = this.checkNoNull(current.squares)
     let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
+    if (winner[0]) {
+      status = 'Winner: ' + winner[0];
+      this.setState({
+        wonSquares: winner[1]
+      });
     }
     else if (noNull) {
       status = 'It is a DRAW'
@@ -145,6 +171,7 @@ class Game extends React.Component {
           <Board 
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
+            wonSquares={this.state.wonSquares}
           />
           <div className="game-info">
             <ol>{moves}</ol>
@@ -169,10 +196,10 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[b] === squares[c] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], lines[i]];
     }
   }
-  return null;
+  return [null, null];
 }
 
 // ========================================
