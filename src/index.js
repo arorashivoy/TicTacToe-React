@@ -31,21 +31,23 @@ class WonSquare extends React.Component {
   
 class Board extends React.Component {
   renderSquare(i) {
-    return (
-      <Square 
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)}
-      />
-    );
-  }
+    const won = this.props.wonSquares.includes(i);
 
-  renderWonSquare(i) {
-    return (
-      <Square 
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)}
-      />
-    );
+    if (won) {
+      return (
+        <WonSquare 
+          value={this.props.squares[i]}
+          onClick={() => this.props.onClick(i)}
+        />
+      );
+    } else {
+      return (
+          <Square 
+            value={this.props.squares[i]}
+            onClick={() => this.props.onClick(i)}
+          />
+      );
+    }
   }
 
   render() {
@@ -118,6 +120,9 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
+    if (!winner[0]) {
+      winner[1] = Array(3).fill(null);
+    }
 
     const moves = history.map((step,  move) => {
       let col, row;
@@ -153,9 +158,9 @@ class Game extends React.Component {
     let status;
     if (winner[0]) {
       status = 'Winner: ' + winner[0];
-      this.setState({
-        wonSquares: winner[1]
-      });
+      // this.setState({
+      //   wonSquares: winner[1]
+      // });
     }
     else if (noNull) {
       status = 'It is a DRAW'
@@ -171,7 +176,8 @@ class Game extends React.Component {
           <Board 
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
-            wonSquares={this.state.wonSquares}
+            // wonSquares={this.state.wonSquares}
+            wonSquares={winner[1]}
           />
           <div className="game-info">
             <ol>{moves}</ol>
@@ -199,7 +205,7 @@ function calculateWinner(squares) {
       return [squares[a], lines[i]];
     }
   }
-  return [null, null];
+  return [null, Array(3).fill(null)];
 }
 
 // ========================================
