@@ -76,8 +76,7 @@ class Game extends React.Component {
         squares: Array(9).fill(null),
       }],
       stepNumber: 0,
-      xIsNext: true,
-      wonSquares: Array(3).fill(null)
+      xIsNext: true
     };
   }
 
@@ -158,9 +157,6 @@ class Game extends React.Component {
     let status;
     if (winner[0]) {
       status = 'Winner: ' + winner[0];
-      // this.setState({
-      //   wonSquares: winner[1]
-      // });
     }
     else if (noNull) {
       status = 'It is a DRAW'
